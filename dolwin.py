@@ -33,12 +33,15 @@ def Main(file):
         ch = msvcrt.getch()
         if ch == b'\x1b':   # Esc
             break
-        cmdline = input("(dolwin) ")
-        if cmdline != "":
-            if cmdline[0] == '%':
-                ExecuteCustomCommand(cmdline.split(' ')[1:])
-            else:
-                dolwin.Execute(cmdline)
+        try:
+            cmdline = input("(dolwin) ")
+            if cmdline != "":
+                if cmdline[0] == '%':
+                    ExecuteCustomCommand(cmdline.split(' ')[1:])
+                else:
+                    dolwin.Execute(cmdline)
+        except Exception as e:
+            print(e)
     
     exitDebugThread = True
 
