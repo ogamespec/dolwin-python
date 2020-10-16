@@ -26,8 +26,6 @@ def do_command(dolwin, args):
 
     startTime = time.time()
 
-    oldPrc = int(0)
-
     while offset < dvdSize:
         try:
             dolwin.Execute ("DvdSeek " + str(offset))
