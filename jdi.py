@@ -27,7 +27,7 @@ class JdiClient:
 
 
     def __execReturnJsonText(self, str, size):
-        self.dll.CallJdiReturnString.argtypes = [c_char_p, POINTER(c_char), c_int]
+        self.dll.CallJdiReturnJson.argtypes = [c_char_p, POINTER(c_char), c_int]
         result = ctypes.create_string_buffer(size)
         self.dll.CallJdiReturnJson (str.encode("ascii"), result, size)
         return result.value.decode("ascii")        
