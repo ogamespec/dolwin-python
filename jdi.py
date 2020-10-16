@@ -69,7 +69,10 @@ class JdiClient:
                 if entry.endswith('\n'):
                     entry = entry[:-1]
                 if lastChannelName != "":
-                    msgs.append(lastChannelName + ": " + entry)
+                    if entry != "":
+                        msgs.append(lastChannelName + ": " + entry)
+                    else:
+                        msgs.append("")
                 else:
                     msgs.append(entry)
 
