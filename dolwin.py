@@ -35,7 +35,10 @@ def Main(file):
             break
         cmdline = input("(dolwin) ")
         if cmdline != "":
-            dolwin.Execute(cmdline)
+            if cmdline[0] == '%':
+                ExecuteCustomCommand(cmdline.split(' ')[1:])
+            else:
+                dolwin.Execute(cmdline)
     
     exitDebugThread = True
 
@@ -56,6 +59,18 @@ def DebugThread():
         for str in msgs:
             print (str)
         time.sleep(0.1)
+
+
+'''
+    Execute external script as custom command
+'''
+def ExecuteCustomCommand(args):
+    global dolwin
+    try:
+        module = __import__("Scripts." + args[0], fromlist=['object'])
+        module.do_command (dolwin, args[1:])
+    except Exception as e:
+        print(e)
 
 
 if __name__ == '__main__':
