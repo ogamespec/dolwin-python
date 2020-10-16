@@ -12,7 +12,7 @@ exitDebugThread = False
 
 '''
     Entry point. Сreate an instance for communicating with JDI, load the specified 
-    file, starts the polling thread for debug messages and waits for a button press.
+    file, starts the polling thread for debug messages and waits for a command/quit.
 '''
 def Main(file):
     global dolwin
@@ -21,7 +21,7 @@ def Main(file):
     dolwin = JdiClient("DolwinEmuForPlayground.dll")
 
     print ("Dolwin Python, emulator version: " + dolwin.GetVersion())
-    print ("Press any key to stop emulation...\n")
+    print ("Press any key to enter command or Esc to quit...\n")
 
     dolwin.Load(file)
     dolwin.Run()
@@ -29,7 +29,13 @@ def Main(file):
     debugThread = threading.Thread(target=DebugThread)
     debugThread.start()
 
-    msvcrt.getch()
+    while True:
+        ch = msvcrt.getch()
+        if ch == b'\x1b':   # Esc
+            break
+        cmdline = input("(dolwin) ")
+        dolwin.Execute(cmdline)
+    
     exitDebugThread = True
 
     dolwin.Unload()

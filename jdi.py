@@ -49,12 +49,8 @@ class JdiClient:
         self.__exec("run")
 
 
-    def Help(self):
-        self.__exec("help")
-
-
     def QueryDebugMessages(self):
-        result = self.__execReturnJsonText("qd", 4096)
+        result = self.__execReturnJsonText("qd", 10000)
         obj = json.loads (result)
 
         msgs = []
@@ -66,3 +62,7 @@ class JdiClient:
                 msgs.append(entry)
 
         return msgs
+
+
+    def Execute(self, cmd):
+        self.__exec(cmd)
