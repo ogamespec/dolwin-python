@@ -7,7 +7,7 @@ import threading
 import msvcrt
 from jdi import JdiClient
 
-jdi = None
+dolwin = None
 exitDebugThread = False
 
 '''
@@ -16,13 +16,13 @@ exitDebugThread = False
 '''
 def Main(file):
     global exitDebugThread
-    jdi = JdiClient("DolwinEmuForPlayground.dll")
+    dolwin = JdiClient("DolwinEmuForPlayground.dll")
 
-    print ("Dolwin Python, emulator version: " + jdi.GetVersion())
+    print ("Dolwin Python, emulator version: " + dolwin.GetVersion())
     print ("Press any key to stop emulation...\n")
 
-    jdi.Load(file)
-    jdi.Run()
+    dolwin.Load(file)
+    dolwin.Run()
 
     debugThread = threading.Thread(target=DebugThread)
     debugThread.start()
@@ -30,7 +30,7 @@ def Main(file):
     msvcrt.getch()
     exitDebugThread = True
 
-    jdi.Unload()
+    dolwin.Unload()
 
     print ("\nThank you for flying Dolwin airlines!")    
 
@@ -40,8 +40,8 @@ def Main(file):
 '''
 def DebugThread():
 
-    #jdi.Help()
-    #msgs = jdi.QueryDebugMessages()
+    #dolwin.Help()
+    #msgs = dolwin.QueryDebugMessages()
 
     while exitDebugThread == False:
         #print ("Wait")
