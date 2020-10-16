@@ -44,7 +44,7 @@ class JdiClient:
         The channel name is not displayed if it is empty.
     '''
     def QueryDebugMessages(self):
-        result = self.__execReturnJsonText("qd", 10000)
+        result = self.__execReturnJsonText("qd", 20000)
         obj = json.loads (result)
 
         msgs = []
@@ -81,5 +81,5 @@ class JdiClient:
         The result is returned as a deserialized Json representation.
     '''
     def ExecuteWithResult(self, cmd):
-        result = self.__execReturnJsonText(cmd, 10000)
+        result = self.__execReturnJsonText(cmd, 20000)
         return json.loads (result)        
