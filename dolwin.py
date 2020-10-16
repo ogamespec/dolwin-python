@@ -1,5 +1,6 @@
 ﻿# Main script to start the emulator
 
+import os
 import sys
 import time
 import threading
@@ -43,8 +44,8 @@ def DebugThread():
     #msgs = jdi.QueryDebugMessages()
 
     while exitDebugThread == False:
-        print ("Wait")
-        time.sleep(0.3)
+        #print ("Wait")
+        time.sleep(0.1)
 
 
 if __name__ == '__main__':
