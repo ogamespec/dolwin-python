@@ -34,7 +34,8 @@ def Main(file):
         if ch == b'\x1b':   # Esc
             break
         cmdline = input("(dolwin) ")
-        dolwin.Execute(cmdline)
+        if cmdline != "":
+            dolwin.Execute(cmdline)
     
     exitDebugThread = True
 
