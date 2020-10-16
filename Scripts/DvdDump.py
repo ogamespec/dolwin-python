@@ -1,5 +1,9 @@
-# Dump DVD (whole or partially) as image.
-# Example: % DvdDump c:\Isos\ac.gcm 0x320000   (dump first 50 MBytes, maxSize is optional parameter)
+'''
+    Dump DVD (whole or partially) as image.
+    Example:
+        MountIso c:/isos/ac.gcm         (mount existing GCM)
+        % DvdDump ac.gcm 0x320000   (dump first 50 MBytes, maxSize is optional parameter)
+'''
 
 import sys
 import time
