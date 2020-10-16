@@ -1,15 +1,28 @@
 ﻿# Main script to start the emulator
 
 import sys
-import ctypes
-import pathlib
+from jdi import JdiClient
 
-import jdi
+jdi = None
 
+'''
+    Entry point. Сreate an instance for communicating with JDI, load the specified 
+    file and go to the main loop.
+'''
 def Main(file):
-    print ("Loading " + file)
+    jdi = JdiClient("DolwinEmuForPlayground.dll")
+
+    print ("Dolwin Version: " + jdi.GetVersion())
+
+    #jdi.Help()
+    #msgs = jdi.QueryDebugMessages()
+
     MainLoop()
 
+'''
+    The main loop polls and displays debug messages from the emulator.
+    Exit occurs by pressing the button.
+'''
 def MainLoop():
     return
 
