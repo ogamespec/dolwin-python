@@ -15,7 +15,9 @@ exitDebugThread = False
     file, starts the polling thread for debug messages and waits for a button press.
 '''
 def Main(file):
+    global dolwin
     global exitDebugThread
+
     dolwin = JdiClient("DolwinEmuForPlayground.dll")
 
     print ("Dolwin Python, emulator version: " + dolwin.GetVersion())
@@ -39,6 +41,8 @@ def Main(file):
     Debug messages polling thread
 '''
 def DebugThread():
+    global dolwin
+    global exitDebugThread
 
     #dolwin.Help()
     #msgs = dolwin.QueryDebugMessages()
