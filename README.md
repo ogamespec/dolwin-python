@@ -23,3 +23,9 @@ Sorry for the binary format (DLL), but it's easier for a quick start. If you are
 ## pong.dol
 
 An old friend of the emulator is the PONG demo by DesktopMan. Ideal for testing.
+
+## Example command line
+
+```
+py -3 dolwin.py pong.dol
+```
