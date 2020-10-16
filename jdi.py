@@ -37,18 +37,6 @@ class JdiClient:
         return self.__execReturnStr("GetVersion", 32)
 
 
-    def Load(self, file):
-        self.__exec("load " + file)
-
-
-    def Unload(self):
-        self.__exec("unload")
-
-
-    def Run(self):
-        self.__exec("run")
-
-
     '''
         Outputting debug messages requires special handling.
         Debug messages come as an array of Channel:Text pairs. 
@@ -65,6 +53,8 @@ class JdiClient:
         for entry in obj["result"]:
             if type(entry) is int:
                 lastChannelName = self.__execReturnStr("GetChannelName " + str(entry), 32)
+                if lastChannelName == "Header":
+                    lastChannelName = ""
             if type(entry) is str:
                 if entry.endswith('\n'):
                     entry = entry[:-1]

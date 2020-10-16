@@ -23,8 +23,8 @@ def Main(file):
     print ("Dolwin Python, emulator version: " + dolwin.GetVersion())
     print ("Press any key to enter command or Esc to quit...\n")
 
-    dolwin.Load(file)
-    dolwin.Run()
+    dolwin.Execute("load " + file)
+    dolwin.Execute("run")
 
     debugThread = threading.Thread(target=DebugThread)
     debugThread.start()
@@ -42,7 +42,7 @@ def Main(file):
     
     exitDebugThread = True
 
-    dolwin.Unload()
+    dolwin.Execute("unload")
 
     print ("\nThank you for flying Dolwin airlines!")    
 
