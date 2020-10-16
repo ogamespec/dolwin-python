@@ -61,5 +61,5 @@ def DebugThread():
 if __name__ == '__main__':
     if (len(sys.argv) < 2):
         print ("Use: py -3 dolwin.py <file>")
-        sys.exit(0)
-    Main(sys.argv[1])
+    else:
+        Main(sys.argv[1])
