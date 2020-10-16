@@ -4,7 +4,7 @@ Python scripts for the GameCube Dolwin emulator.
 
 This section contains examples of interaction with the emulator through python scripts.
 
-Dolwin contains a custom debug and service interface called JDI (Json Debug Interface). All scripts interact with the emulator through this interface.
+Dolwin contains a custom debug and service interface called JDI (Json Debug Interface). All scripts interact with the emulator through this interface (see jdi.py).
 
 JDI description: https://github.com/ogamespec/dolwin-docs/blob/master/EMU/JsonDebugInterface.md
 
