@@ -1,30 +1,51 @@
 ﻿# Main script to start the emulator
 
 import sys
+import time
+import threading
+import msvcrt
 from jdi import JdiClient
 
 jdi = None
+exitDebugThread = False
 
 '''
     Entry point. Сreate an instance for communicating with JDI, load the specified 
-    file and go to the main loop.
+    file, starts the polling thread for debug messages and waits for a button press.
 '''
 def Main(file):
+    global exitDebugThread
     jdi = JdiClient("DolwinEmuForPlayground.dll")
 
-    print ("Dolwin Version: " + jdi.GetVersion())
+    print ("Dolwin Python, emulator version: " + jdi.GetVersion())
+    print ("Press any key to stop emulation...\n")
+
+    jdi.Load(file)
+    jdi.Run()
+
+    debugThread = threading.Thread(target=DebugThread)
+    debugThread.start()
+
+    msvcrt.getch()
+    exitDebugThread = True
+
+    jdi.Unload()
+
+    print ("\nThank you for flying Dolwin airlines!")    
+
+
+'''
+    Debug messages polling thread
+'''
+def DebugThread():
 
     #jdi.Help()
     #msgs = jdi.QueryDebugMessages()
 
-    MainLoop()
+    while exitDebugThread == False:
+        print ("Wait")
+        time.sleep(0.3)
 
-'''
-    The main loop polls and displays debug messages from the emulator.
-    Exit occurs by pressing the button.
-'''
-def MainLoop():
-    return
 
 if __name__ == '__main__':
     if (len(sys.argv) < 2):
