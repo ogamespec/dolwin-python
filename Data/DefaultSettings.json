@@ -37,7 +37,7 @@
 	{
 		"ANSI": "Data/AnsiFont.szp",
 		"SJIS": "Data/SjisFont.szp",
-		"CONSOLE": 3,
+		"CONSOLE": 268435462,
 		"EXI_LOG": true,
 		"OS_REPORT": true,
 		"RSWHACK": true,

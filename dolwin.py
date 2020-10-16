@@ -44,11 +44,10 @@ def DebugThread():
     global dolwin
     global exitDebugThread
 
-    #dolwin.Help()
-    #msgs = dolwin.QueryDebugMessages()
-
     while exitDebugThread == False:
-        #print ("Wait")
+        msgs = dolwin.QueryDebugMessages()
+        for str in msgs:
+            print (str)
         time.sleep(0.1)
 
 

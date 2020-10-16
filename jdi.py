@@ -3,6 +3,7 @@
 import ctypes
 from ctypes import *
 import pathlib
+import json
 
 class JdiClient:
 
@@ -18,15 +19,22 @@ class JdiClient:
         self.dll.CallJdiNoReturn(str.encode("ascii"))
 
 
-    def __execReturnStr(self, str):
+    def __execReturnStr(self, str, size):
         self.dll.CallJdiReturnString.argtypes = [c_char_p, POINTER(c_char), c_int]
-        result = ctypes.create_string_buffer(1024)
-        self.dll.CallJdiReturnString (str.encode("ascii"), result, 1024)
+        result = ctypes.create_string_buffer(size)
+        self.dll.CallJdiReturnString (str.encode("ascii"), result, size)
         return result.value.decode("ascii")
 
 
+    def __execReturnJsonText(self, str, size):
+        self.dll.CallJdiReturnString.argtypes = [c_char_p, POINTER(c_char), c_int]
+        result = ctypes.create_string_buffer(size)
+        self.dll.CallJdiReturnJson (str.encode("ascii"), result, size)
+        return result.value.decode("ascii")        
+
+
     def GetVersion(self):
-        return self.__execReturnStr("GetVersion")
+        return self.__execReturnStr("GetVersion", 32)
 
 
     def Load(self, file):
@@ -46,9 +54,15 @@ class JdiClient:
 
 
     def QueryDebugMessages(self):
-        #self.dll.CallJdiReturnJson.argtypes = [c_char_p, POINTER(c_char), c_int]
-        #self.dll.CallJdiReturnJson.restype = None
-        result = (c_char * 256)()
-        self.dll.CallJdiReturnJson("qd", result, 256)
-        print (result);
-        return []
+        result = self.__execReturnJsonText("qd", 4096)
+        obj = json.loads (result)
+
+        msgs = []
+
+        for entry in obj["result"]:
+            if type(entry) is str:
+                if entry.endswith('\n'):
+                    entry = entry[:-1]
+                msgs.append(entry)
+
+        return msgs
