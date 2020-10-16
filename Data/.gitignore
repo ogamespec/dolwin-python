@@ -1,0 +1,6 @@
+*.map
+*.bin
+*.cmd
+*.txt
+*.patch
+Settings.json
