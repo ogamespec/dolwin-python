@@ -74,9 +74,6 @@ def do_command(dolwin, args):
     entries = []                    # Save all entries to this collection
 
     while numEntries != 0:
-        dolwin.Execute ("DvdSeek " + str(entryOffset))
-        res = dolwin.ExecuteWithResult ( "DvdRead " + str(fstEntrySize) + " 1")
-
         entry = FSTEntry()
 
         entry.id = len(entries)
