@@ -52,14 +52,25 @@ def do_command(dolwin, args):
         return
 
     numEntries = __DvdReadUInt32(dolwin, fstOffset + 8)
+
+    if numEntries * fstEntrySize > fstLength:
+        print ("The number of records exceeds the specified FST size (including nametable)")
+        return
+
+    nameTableLength = fstLength - numEntries * fstEntrySize
+    if nameTableLength <= 0:
+        print ("Suspicious nametable size")
+        return
+
     print ("FST entries count: " + str(numEntries))
+    print ("Nametable size: " + str(nameTableLength) + " bytes")
 
     # Load nametable
 
     dolwin.Execute ("DvdSeek " + str(fstOffset + numEntries * fstEntrySize))
-    res = dolwin.ExecuteWithResult ( "DvdRead " + str(fstLength - numEntries * fstEntrySize) + " 1")
+    res = dolwin.ExecuteWithResult ( "DvdRead " + str(nameTableLength) + " 1")
     nametable = res["result"]
-    print (nametable)
+    print ("nametable: " + str(nametable))
 
     # Consecutively display the contents of FST entries (each entry is either a directory or a file)
 

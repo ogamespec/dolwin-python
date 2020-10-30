@@ -29,3 +29,9 @@ An old friend of the emulator is the PONG demo by DesktopMan. Ideal for testing.
 ```
 py -3 dolwin.py pong.dol
 ```
+
+With autorun script:
+
+```
+py -3 dolwin.py pong.dol autorun.txt
+```

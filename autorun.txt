@@ -1,0 +1,6 @@
+# These commands will be executed immediately after the start of emulation
+
+stop
+MountIso c:\Isos\dodger.gcm
+sleep 200
+% DvdListFiles

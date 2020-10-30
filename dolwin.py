@@ -9,6 +9,7 @@ from jdi import JdiClient
 
 dolwin = None
 exitDebugThread = False
+autorunScript = None
 
 '''
     Entry point. Сreate an instance for communicating with JDI, load the specified 
@@ -28,6 +29,8 @@ def Main(file):
 
     debugThread = threading.Thread(target=DebugThread)
     debugThread.start()
+
+    RunAutorun()
 
     while True:
         ch = msvcrt.getch()
@@ -76,8 +79,30 @@ def ExecuteCustomCommand(args):
         print(e)
 
 
+'''
+    Run autorun after emulation started
+'''
+def RunAutorun():
+    global autorunScript
+    if not autorunScript:
+        return
+    with open(autorunScript, "r") as f:
+        for line in f:
+            cmdline = line.replace("\n", "")
+            if not cmdline:
+                continue
+            if cmdline[0] == '#':
+                continue
+            if cmdline[0] == '%':
+                ExecuteCustomCommand(cmdline.split(' ')[1:])
+            else:
+                dolwin.Execute(cmdline)
+
+
 if __name__ == '__main__':
     if (len(sys.argv) < 2):
-        print ("Use: py -3 dolwin.py <file>")
+        print ("Use: py -3 dolwin.py <file> [autorun.txt]")
     else:
+        if len(sys.argv) >= 3:
+            autorunScript = sys.argv[2]
         Main(sys.argv[1])
