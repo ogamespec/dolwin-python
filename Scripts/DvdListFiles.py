@@ -65,12 +65,10 @@ def do_command(dolwin, args):
 
     # Load nametable
 
-    dolwin.Execute ("DvdSeek " + str(fstOffset + numEntries * fstEntrySize))
-    res = dolwin.ExecuteWithResult ( "DvdRead " + str(nameTableLength) + " 1")
-    nametable = res["result"]
-    print ("nametable: " + str(nametable))
+    nametable = __DvdReadLargeChunk(dolwin, fstOffset + numEntries * fstEntrySize, nameTableLength)
+    #print ("nametable: " + str(nametable))
 
-    # Consecutively display the contents of FST entries (each entry is either a directory or a file)
+    # Collect all FST entries into a common collection for easy display
 
     entryOffset = fstOffset             # Offset of the current entry
     entries = []                    # Save all entries to this collection
@@ -92,21 +90,52 @@ def do_command(dolwin, args):
             entry.fileOffset = __DvdReadUInt32(dolwin, entryOffset + 4)
             entry.fileLength = __DvdReadUInt32(dolwin, entryOffset + 8)
 
-        __DumpFstEntry (entry, nametable)
-
         entries.append(entry)
         numEntries -= 1
         entryOffset += fstEntrySize
+
+    # Consecutively display the contents of FST entries (each entry is either a directory or a file)
+
+    print ("category [entry_id]: path (nameOffset), ... directory/file specific info")
+
+    for e in entries:
+        __DumpFstEntry (e, entries, nametable)
 
 
 '''
     Display FST entry contents
 '''
-def __DumpFstEntry (entry, nametable):
+def __DumpFstEntry (entry, entries, nametable):
     if entry.isDir:
-        print ("directory: nameOffset: 0x%0.8X, parentOffset: 0x%0.8X, nextOffset: 0x%0.8X" % (entry.nameOffset, entry.parentOffset, entry.nextOffset))
+        if entry.id == 0:
+            print ("dir [0]: (root)")
+        else:
+            print ("dir [%d]: %s (%d), parent: %d, next: %d" % (entry.id, __DvdGetName(nametable, entry.nameOffset), entry.nameOffset, entry.parentOffset, entry.nextOffset))
     else:
-        print ("file: nameOffset: 0x%0.8X, fileOffset: 0x%0.8X, fileLength: 0x%0.8X" % (entry.nameOffset, entry.fileOffset, entry.fileLength))
+        fullPath = __DvdGetName(nametable, entry.nameOffset)
+
+        # To understand how the FST hierarchical structure works, see the bottom of this file.
+
+        # Get parent directory by iterating over FST entries backward until isDir = 1 is encountered.
+        # The `next` value for the directory must be greater file ID
+
+        parentDirId = 0
+        currentId = entry.id
+        
+        while currentId != 0:
+            if entries[currentId].isDir and entries[currentId].nextOffset > entry.id:
+                parentDirId = currentId
+                break
+            currentId -= 1
+
+        # Recursively climb up directories until a directory with parent = 0 is encountered
+
+        while parentDirId != 0:
+            fullPath = __DvdGetName(nametable, entries[parentDirId].nameOffset) + "/" + fullPath
+            parentDirId = entries[parentDirId].parentOffset
+        fullPath = "/" + fullPath
+
+        print ("file [%d]: %s (%d), offset: 0x%0.8X, len: 0x%0.8X" % (entry.id, fullPath, entry.nameOffset, entry.fileOffset, entry.fileLength))
 
 
 '''
@@ -137,10 +166,31 @@ def __DvdReadUInt32(dolwin, offset):
 
 
 '''
+    Load large block of data. Loading is performed in chunks no larger than a sector.
+'''
+def __DvdReadLargeChunk(dolwin, offset, size):
+    result = []
+    DVD_SECTOR_SIZE = 2048
+
+    while size != 0:
+        actualSize = min (size, DVD_SECTOR_SIZE)
+        dolwin.Execute ("DvdSeek " + str(offset))
+        res = dolwin.ExecuteWithResult ( "DvdRead " + str(actualSize) + " 1")
+        result += res["result"]
+        offset += actualSize
+        size -= actualSize
+
+    return result
+
+
+'''
     Get zero-terminated ANSI byte string from nametable
 '''
 def __DvdGetName(nametable, offset):
-    return
+    len = 0
+    while nametable[offset + len] != 0:
+        len += 1
+    return bytearray(nametable[offset:offset+len]).decode()
 
 
 '''
@@ -166,3 +216,44 @@ struct DVDFileEntry
 '''
 class FSTEntry (object):
     pass
+
+
+
+'''
+
+An example of a directory structure in FST:
+
+/
+    AudioRes
+        Banks 
+            LuiSe2_0.aw
+            LuiSec0_0.aw
+            LuiSec1_0.aw
+            LuiSec2_0.aw
+        JaiInit.aaf             -- file
+        Seqs
+            JaiArcS.arc
+        Stream
+            TMansion.afc
+            TMOpen.afc
+    CVS
+        ...
+
+
+dir [84]: AudioRes (981), parent: 0, next: 96
+dir [85]: Banks (990), parent: 84, next: 90
+file [86]: /AudioRes/Banks/LuiSe2_0.aw (996), offset: 0x4D5785F0, len: 0x0003EA60
+file [87]: /AudioRes/Banks/LuiSec0_0.aw (1008), offset: 0x4D5B7050, len: 0x002325C0
+file [88]: /AudioRes/Banks/LuiSec1_0.aw (1021), offset: 0x4D7E9610, len: 0x00637200
+file [89]: /AudioRes/Banks/LuiSec2_0.aw (1034), offset: 0x4DE20810, len: 0x005E1CE0
+file [90]: /AudioRes/JaiInit.aaf (1047), offset: 0x56D96820, len: 0x0003B900
+dir [91]: Seqs (1059), parent: 84, next: 93
+file [92]: /AudioRes/Seqs/JaiArcS.arc (1064), offset: 0x4E4024F0, len: 0x0008DEA0
+dir [93]: Stream (1076), parent: 84, next: 96
+file [94]: /AudioRes/Stream/TMansion.afc (1083), offset: 0x4E490390, len: 0x000DE040
+file [95]: /AudioRes/Stream/TMOpen.afc (1096), offset: 0x4E56E3D0, len: 0x0024FC00
+dir [96]: CVS (1107), parent: 0, next: 100
+
+As you can see, the `next` field in the `Banks` directory points to the `JaiInit.aaf` file, where the current level of the `Banks` folder hierarchy ends.
+
+'''
