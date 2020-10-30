@@ -5,8 +5,6 @@
         % DvdListFiles
 
 '''
-
-
 def do_command(dolwin, args):
 
     # Check if any DVD is mounted (real GCM image or DolphinSDK virtual disk)
@@ -136,6 +134,7 @@ def __DvdReadUInt32(dolwin, offset):
     dolwin.Execute ("DvdSeek " + str(offset))
     res = dolwin.ExecuteWithResult ( "DvdRead 4 1")
     return (res["result"][0] << 24) | (res["result"][1] << 16) | (res["result"][2] << 8) | (res["result"][3])
+
 
 '''
     Get zero-terminated ANSI byte string from nametable

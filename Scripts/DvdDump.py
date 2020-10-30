@@ -1,3 +1,6 @@
+import sys
+import time
+
 '''
     Dump DVD (whole or partially) as image.
     Example:
@@ -6,10 +9,6 @@
 
     Note: this is damn slow..
 '''
-
-import sys
-import time
-
 def do_command(dolwin, args):
     if (len(args) < 1):
         print ("Use: % " + __name__.split(".")[-1] + " <file> [maxSize]")
