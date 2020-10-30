@@ -57,9 +57,6 @@ def Main(file):
     Debug messages polling thread
 '''
 def DebugThread():
-    global dolwin
-    global exitDebugThread
-
     while exitDebugThread == False:
         msgs = dolwin.QueryDebugMessages()
         for str in msgs:
@@ -71,7 +68,6 @@ def DebugThread():
     Execute external script as custom command
 '''
 def ExecuteCustomCommand(args):
-    global dolwin
     try:
         module = __import__("Scripts." + args[0], fromlist=['object'])
         module.do_command (dolwin, args[1:])
@@ -83,7 +79,6 @@ def ExecuteCustomCommand(args):
     Run autorun after emulation started
 '''
 def RunAutorun():
-    global autorunScript
     if not autorunScript:
         return
     with open(autorunScript, "r") as f:
