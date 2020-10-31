@@ -1,6 +1,1 @@
 # These commands will be executed immediately after the start of emulation
-
-stop
-MountSDK "c:\Work\NINTENDO GameCube SDK 1.0"
-sleep 200
-% DvdListFiles
