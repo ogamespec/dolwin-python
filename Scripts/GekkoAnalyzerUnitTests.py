@@ -1,7 +1,5 @@
 from enum import IntEnum, auto
 
-defaultPc = 0x80000000
-
 '''
     Testing the GekkoCore Instruction Analyzer.
 
@@ -33,8 +31,9 @@ def do_command(dolwin, args):
 '''
     The base method that calls the parser gets the results and compares them with what should be obtained.
 '''
-def __test(dolwin, pc, opcode, should):
-    info = Info(dolwin.ExecuteWithResult ("GekkoAnalyze " + str(pc) + " " + str(opcode)))
+def __test(dolwin, opcode, should):
+    defaultPc = 0x80000000
+    info = Info(dolwin.ExecuteWithResult ("GekkoAnalyze 0x%08X 0x%08X" % (defaultPc, opcode)))
     print (info.ToString(dolwin))
     if info != should:
         raise Exception(__name__.split(".")[-1] + ": " + info.GetInstrName(dolwin) + " test failed")
@@ -50,47 +49,76 @@ def __EmptyOpcode(dolwin):
     s.paramBits = [ 0, 0, 0 ]
     s.Imm = 0
 
-    __test (dolwin, defaultPc, 0x60000000, s)
+    __test (dolwin, 0x60000000, s)
     return
+
+
+#################################################################################################
 
 def __BranchOpcodes(dolwin):
     return
 
+#################################################################################################
+
 def __CompareOpcodes(dolwin):
     return
+
+#################################################################################################
 
 def __ConditionOpcodes(dolwin):
     return
 
+#################################################################################################
+
 def __FPUOpcodes(dolwin):
     return
+
+#################################################################################################
 
 def __FPULoadStoreOpcodes(dolwin):
     return
 
+#################################################################################################
+
 def __IntegerOpcodes(dolwin):
     return
+
+#################################################################################################
 
 def __LoadStoreOpcodes(dolwin):
     return
 
+#################################################################################################
+
 def __LogicalOpcodes(dolwin):
     return
+
+#################################################################################################
 
 def __PairedSingleOpcodes(dolwin):
     return
 
+#################################################################################################
+
 def __PSLoadStoreOpcodes(dolwin):
     return
+
+#################################################################################################
 
 def __RotateOpcodes(dolwin):
     return
 
+#################################################################################################
+
 def __ShiftOpcodes(dolwin):
     return
 
+#################################################################################################
+
 def __SystemOpcodes(dolwin):
     return
+
+#################################################################################################
 
 
 '''
