@@ -1,8 +1,8 @@
 # These commands will be executed immediately after the start of emulation
 
 stop
-echo "Stopped intentionally for GekkoAnalyzerUnitTests"
+echo "Stopped intentionally for GekkoAssemblerUnitTests"
 echo ""
 sleep 200
-% GekkoAnalyzerUnitTests
+% GekkoAssemblerUnitTests
 exit
