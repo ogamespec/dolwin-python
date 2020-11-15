@@ -29,6 +29,7 @@ def __TestTemplate(dolwin):
 
 def __BranchOpcodes(dolwin):
     __BranchLongTest (dolwin)
+    __BranchShortTest (dolwin)
 
 
 '''
@@ -340,6 +341,285 @@ def __BranchLongTest(dolwin):
         [GekkoParam.Address], 
         [0], 
         0xFDFFFFF8, 
+        0xFFFFFFFC)
+    text = __disasm(dolwin, 0xFFFFFFFC, instr)
+    if instr != 0:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+
+'''
+    Test instructions: bc, bca, bcl, bcla
+'''
+def __BranchShortTest(dolwin):
+    defaultPc = 0x80003100
+
+    # Trivial cases
+
+    # bc 12, 0, 0x80004000
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bc, 
+        [GekkoParam.Num, GekkoParam.Num, GekkoParam.Address], 
+        [12, 0, 0], 
+        0x80004000, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x41800F00:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    # bca 12, 0, 0x00004000
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bca, 
+        [GekkoParam.Num, GekkoParam.Num, GekkoParam.Address], 
+        [12, 0, 0], 
+        0x00004000, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x41804002:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    # bcl 12, 0, 0x80004000
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bcl, 
+        [GekkoParam.Num, GekkoParam.Num, GekkoParam.Address], 
+        [12, 0, 0], 
+        0x80004000, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x41800F01:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    # bcla 12, 0, 0x00004000
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bcla, 
+        [GekkoParam.Num, GekkoParam.Num, GekkoParam.Address], 
+        [12, 0, 0], 
+        0x00004000, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x41804003:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    # Corner case values for absolute branch: [xxxx xxxx xxxx xxxx iiii iiii iiii iixx]
+    # i = [0100 0000 0000 00xx]: address = 0x4000
+    # i = [0111 1111 1111 11xx]: address = 0x7FFC
+    # i = [1000 0000 0000 00xx]: address = 0xFFFF8000
+    # i = [1111 1111 1111 11xx]: address = 0xFFFFFFFC
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bca, 
+        [GekkoParam.Num, GekkoParam.Num, GekkoParam.Address], 
+        [12, 0, 0], 
+        0x4000, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x41804002:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bca, 
+        [GekkoParam.Num, GekkoParam.Num, GekkoParam.Address], 
+        [12, 0, 0], 
+        0x7FFC, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x41807FFE:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bca, 
+        [GekkoParam.Num, GekkoParam.Num, GekkoParam.Address], 
+        [12, 0, 0], 
+        0xFFFF8000, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x41808002:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bca, 
+        [GekkoParam.Num, GekkoParam.Num, GekkoParam.Address], 
+        [12, 0, 0], 
+        0xFFFFFFFC, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x4180FFFE:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    # Bad corner cases for absolute branch
+    # address: 0x8000 -- invalid
+    # address: 0xFFFF7FFC -- invalid
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bca, 
+        [GekkoParam.Num, GekkoParam.Num, GekkoParam.Address], 
+        [12, 0, 0], 
+        0x8000, 
+        0)
+    text = __disasm(dolwin, 0, instr)
+    if instr != 0:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bca, 
+        [GekkoParam.Num, GekkoParam.Num, GekkoParam.Address], 
+        [12, 0, 0], 
+        0xFFFF7FFC, 
+        0)
+    text = __disasm(dolwin, 0, instr)
+    if instr != 0:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    # Corner case values for non-absolute branch
+    # i = [0000 0000 0000 00xx]: offset = 0x0
+    # i = [0111 1111 1111 11xx]: offset = 0x7FFC
+    # i = [1000 0000 0000 00xx]: offset = 0xFFFF8000
+    # i = [1111 1111 1111 11xx]: offset = 0xFFFFFFFC
+    # Range from address 0x0: [0, 0x7FFC], [0xFFFF8000, 0xFFFFFFFC]
+    # Range from address 0xffff'fffc: [0xfffffffc, 0x7FF8], [0xFFFF7FFC, 0xFFFFFFF8]
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bc, 
+        [GekkoParam.Num, GekkoParam.Num, GekkoParam.Address], 
+        [12, 0, 0], 
+        0, 
+        0)
+    text = __disasm(dolwin, 0, instr)
+    if instr != 0x41800000:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bc, 
+        [GekkoParam.Num, GekkoParam.Num, GekkoParam.Address], 
+        [12, 0, 0], 
+        0x7FFC, 
+        0)
+    text = __disasm(dolwin, 0, instr)
+    if instr != 0x41807FFC:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bc, 
+        [GekkoParam.Num, GekkoParam.Num, GekkoParam.Address], 
+        [12, 0, 0], 
+        0xFFFF8000, 
+        0)
+    text = __disasm(dolwin, 0, instr)
+    if instr != 0x41808000:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bc, 
+        [GekkoParam.Num, GekkoParam.Num, GekkoParam.Address], 
+        [12, 0, 0], 
+        0xFFFFFFFC, 
+        0)
+    text = __disasm(dolwin, 0, instr)
+    if instr != 0x4180FFFC:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bc, 
+        [GekkoParam.Num, GekkoParam.Num, GekkoParam.Address], 
+        [12, 0, 0], 
+        0xfffffffc, 
+        0xfffffffc)
+    text = __disasm(dolwin, 0xfffffffc, instr)
+    if instr != 0x41800000:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bc, 
+        [GekkoParam.Num, GekkoParam.Num, GekkoParam.Address], 
+        [12, 0, 0], 
+        0x7FF8, 
+        0xfffffffc)
+    text = __disasm(dolwin, 0xfffffffc, instr)
+    if instr != 0x41807FFC:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bc, 
+        [GekkoParam.Num, GekkoParam.Num, GekkoParam.Address], 
+        [12, 0, 0], 
+        0xFFFF7FFC, 
+        0xfffffffc)
+    text = __disasm(dolwin, 0xfffffffc, instr)
+    if instr != 0x41808000:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bc, 
+        [GekkoParam.Num, GekkoParam.Num, GekkoParam.Address], 
+        [12, 0, 0], 
+        0xFFFFFFF8, 
+        0xfffffffc)
+    text = __disasm(dolwin, 0xfffffffc, instr)
+    if instr != 0x4180FFFC:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")        
+
+    # Bad corner cases for non-absolute branch
+    # pc: 0, address: 0x8000 ( +0x8000)
+    # pc: 0, address: 0xFFFF7FFC ( -0x8004)
+    # pc: 0xFFFFFFFC, address: 0x7FFC ( +0x8000)
+    # pc: 0xFFFFFFFC, address: 0xFFFF7FF8 ( -0x8004)
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bc, 
+        [GekkoParam.Num, GekkoParam.Num, GekkoParam.Address], 
+        [12, 0, 0], 
+        0x8000, 
+        0)
+    text = __disasm(dolwin, 0, instr)
+    if instr != 0:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bc, 
+        [GekkoParam.Num, GekkoParam.Num, GekkoParam.Address], 
+        [12, 0, 0], 
+        0xFFFF7FFC, 
+        0)
+    text = __disasm(dolwin, 0, instr)
+    if instr != 0:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bc, 
+        [GekkoParam.Num, GekkoParam.Num, GekkoParam.Address], 
+        [12, 0, 0], 
+        0x7FFC, 
+        0xFFFFFFFC)
+    text = __disasm(dolwin, 0xFFFFFFFC, instr)
+    if instr != 0:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bc, 
+        [GekkoParam.Num, GekkoParam.Num, GekkoParam.Address], 
+        [12, 0, 0], 
+        0xFFFF7FF8, 
         0xFFFFFFFC)
     text = __disasm(dolwin, 0xFFFFFFFC, instr)
     if instr != 0:
