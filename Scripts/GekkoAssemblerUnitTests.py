@@ -30,6 +30,7 @@ def __TestTemplate(dolwin):
 def __BranchOpcodes(dolwin):
     __BranchLongTest (dolwin)
     __BranchShortTest (dolwin)
+    __BranchBOBI (dolwin)
 
 
 '''
@@ -623,6 +624,66 @@ def __BranchShortTest(dolwin):
         0xFFFFFFFC)
     text = __disasm(dolwin, 0xFFFFFFFC, instr)
     if instr != 0:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+
+def __BranchBOBI (dolwin):
+    defaultPc = 0x80003100
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bcctr, 
+        [GekkoParam.Num, GekkoParam.Num], 
+        [4, 10], 
+        0, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x4C8A0420:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bcctrl, 
+        [GekkoParam.Num, GekkoParam.Num], 
+        [4, 10], 
+        0, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x4C8A0421:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bclr, 
+        [GekkoParam.Num, GekkoParam.Num], 
+        [4, 10], 
+        0, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x4C8A0020:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    # bdnzlr-
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bclr, 
+        [GekkoParam.Num, GekkoParam.Num], 
+        [16, 0], 
+        0, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x4E000020:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")        
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.bclrl, 
+        [GekkoParam.Num, GekkoParam.Num], 
+        [4, 10], 
+        0, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x4C8A0021:
         raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
 
 
