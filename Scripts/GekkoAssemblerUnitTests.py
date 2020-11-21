@@ -6,6 +6,7 @@ from .GekkoAnalyzer import *
 def do_command(dolwin, args):
     try:
         __BranchOpcodes(dolwin)
+        __CompareOpcodes(dolwin)
     except Exception as e:
         print(e)
 
@@ -673,7 +674,7 @@ def __BranchBOBI (dolwin):
         defaultPc)
     text = __disasm(dolwin, defaultPc, instr)
     if instr != 0x4E000020:
-        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")        
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
 
     instr = __asm (
         dolwin,
@@ -689,6 +690,99 @@ def __BranchBOBI (dolwin):
 
 #################################################################################################
 
+def __CompareOpcodes(dolwin):
+    defaultPc = 0x80003100
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.cmp, 
+        [GekkoParam.Crf, GekkoParam.Reg, GekkoParam.Reg], 
+        [3, 2, 1], 
+        0, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x7D820800:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.cmpl, 
+        [GekkoParam.Crf, GekkoParam.Reg, GekkoParam.Reg], 
+        [3, 2, 1], 
+        0, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x7D820840:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")        
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.cmpi, 
+        [GekkoParam.Crf, GekkoParam.Reg, GekkoParam.Simm], 
+        [3, 2, 0], 
+        0x7fff, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x2D827FFF:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.cmpi, 
+        [GekkoParam.Crf, GekkoParam.Reg, GekkoParam.Simm], 
+        [3, 2, 0], 
+        0x8000, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x2D828000:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.cmpi, 
+        [GekkoParam.Crf, GekkoParam.Reg, GekkoParam.Simm], 
+        [3, 2, 0], 
+        0xffff, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x2D82FFFF:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.cmpli, 
+        [GekkoParam.Crf, GekkoParam.Reg, GekkoParam.Uimm], 
+        [3, 2, 0], 
+        0x7fff, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x29827FFF:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.cmpli, 
+        [GekkoParam.Crf, GekkoParam.Reg, GekkoParam.Uimm], 
+        [3, 2, 0], 
+        0x8000, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x29828000:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.cmpli, 
+        [GekkoParam.Crf, GekkoParam.Reg, GekkoParam.Uimm], 
+        [3, 2, 0], 
+        0xffff, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x2982FFFF:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+
+#################################################################################################
 
 '''
     Assemble the Gekko instruction
