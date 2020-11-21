@@ -7,6 +7,7 @@ def do_command(dolwin, args):
     try:
         __BranchOpcodes(dolwin)
         __CompareOpcodes(dolwin)
+        __ConditionOpcodes(dolwin)
     except Exception as e:
         print(e)
 
@@ -783,6 +784,103 @@ def __CompareOpcodes(dolwin):
 
 
 #################################################################################################
+
+# Пиздец какие важные опкоды, без них не может жить ни один программист. (извиняюсь за издевательский тон, но нахуя оверинжинирить архитектуру?)
+
+def __ConditionOpcodes(dolwin):
+    defaultPc = 0x80003100
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.crand, 
+        [GekkoParam.Crb, GekkoParam.Crb, GekkoParam.Crb], 
+        [7, 0, 31], 
+        0, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x4CE0FA02:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.crandc, 
+        [GekkoParam.Crb, GekkoParam.Crb, GekkoParam.Crb], 
+        [7, 0, 31], 
+        0, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x4CE0F902:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.creqv, 
+        [GekkoParam.Crb, GekkoParam.Crb, GekkoParam.Crb], 
+        [7, 0, 31], 
+        0, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x4CE0FA42:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.crnand, 
+        [GekkoParam.Crb, GekkoParam.Crb, GekkoParam.Crb], 
+        [7, 0, 31], 
+        0, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x4CE0F9C2:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.crnor, 
+        [GekkoParam.Crb, GekkoParam.Crb, GekkoParam.Crb], 
+        [7, 0, 31], 
+        0, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x4CE0F842:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.cror, 
+        [GekkoParam.Crb, GekkoParam.Crb, GekkoParam.Crb], 
+        [7, 0, 31], 
+        0, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x4CE0FB82:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.crorc, 
+        [GekkoParam.Crb, GekkoParam.Crb, GekkoParam.Crb], 
+        [7, 0, 31], 
+        0, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x4CE0FB42:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+    instr = __asm (
+        dolwin,
+        GekkoInstruction.crxor, 
+        [GekkoParam.Crb, GekkoParam.Crb, GekkoParam.Crb], 
+        [7, 0, 31], 
+        0, 
+        defaultPc)
+    text = __disasm(dolwin, defaultPc, instr)
+    if instr != 0x4CE0F982:
+        raise Exception(__name__.split(".")[-1] + " `" + text + "` failed!")
+
+
+#################################################################################################
+
 
 '''
     Assemble the Gekko instruction
